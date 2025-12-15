@@ -5,7 +5,6 @@ export type TriggerCategory =
   | 'social'
   | 'environmental'
   | 'physical'
-  | 'mental'
   | 'other';
 
 export type TriggerIntensity = 1 | 2 | 3 | 4 | 5;
@@ -14,13 +13,13 @@ export interface TriggerLog {
   id: string;
   user_id: string;
   trigger_name: string;
-  category: TriggerCategory;
+  trigger_type: TriggerCategory;
   intensity: TriggerIntensity;
-  situation: string | null;
+  location: string | null;
   coping_strategies_used: string[];
-  outcome: 'resisted' | 'partially_resisted' | 'gave_in' | null;
+  outcome: 'managed' | 'struggled' | 'relapsed' | null;
   notes: string | null;
-  occurred_at: string;
+  triggered_at: string;
   created_at: string;
 }
 
@@ -36,13 +35,13 @@ export interface CopingStrategy {
 
 export interface CreateTriggerLogInput {
   trigger_name: string;
-  category: TriggerCategory;
+  trigger_type: TriggerCategory;
   intensity: TriggerIntensity;
-  situation?: string;
+  location?: string;
   coping_strategies_used?: string[];
-  outcome?: 'resisted' | 'partially_resisted' | 'gave_in';
+  outcome?: 'managed' | 'struggled' | 'relapsed';
   notes?: string;
-  occurred_at?: Date;
+  triggered_at?: Date;
 }
 
 export const TRIGGER_CATEGORIES: { value: TriggerCategory; label: string; icon: string; description: string }[] = [
@@ -71,16 +70,10 @@ export const TRIGGER_CATEGORIES: { value: TriggerCategory; label: string; icon: 
     description: 'Fatigue, pain, hunger, insomnia',
   },
   {
-    value: 'mental',
-    label: 'Mental',
-    icon: '🧠',
-    description: 'Negative thoughts, boredom, memories',
-  },
-  {
     value: 'other',
     label: 'Other',
     icon: '📌',
-    description: 'Other triggers not listed above',
+    description: 'Negative thoughts, boredom, memories, and other triggers',
   },
 ];
 
@@ -90,7 +83,7 @@ export const COMMON_TRIGGERS = [
   { name: 'Loneliness', category: 'emotional' as TriggerCategory },
   { name: 'Anger', category: 'emotional' as TriggerCategory },
   { name: 'Sadness', category: 'emotional' as TriggerCategory },
-  { name: 'Boredom', category: 'mental' as TriggerCategory },
+  { name: 'Boredom', category: 'other' as TriggerCategory },
   { name: 'Peer pressure', category: 'social' as TriggerCategory },
   { name: 'Parties/Social events', category: 'social' as TriggerCategory },
   { name: 'Certain people', category: 'social' as TriggerCategory },
@@ -99,8 +92,8 @@ export const COMMON_TRIGGERS = [
   { name: 'Fatigue', category: 'physical' as TriggerCategory },
   { name: 'Physical pain', category: 'physical' as TriggerCategory },
   { name: 'Insomnia', category: 'physical' as TriggerCategory },
-  { name: 'Negative self-talk', category: 'mental' as TriggerCategory },
-  { name: 'Memories/Flashbacks', category: 'mental' as TriggerCategory },
+  { name: 'Negative self-talk', category: 'other' as TriggerCategory },
+  { name: 'Memories/Flashbacks', category: 'other' as TriggerCategory },
 ];
 
 export const INTENSITY_LABELS = [
@@ -126,13 +119,13 @@ class TriggersService {
       .insert({
         user_id: user.id,
         trigger_name: input.trigger_name,
-        category: input.category,
+        trigger_type: input.trigger_type,
         intensity: input.intensity,
-        situation: input.situation || null,
+        location: input.location || null,
         coping_strategies_used: input.coping_strategies_used || [],
         outcome: input.outcome || null,
         notes: input.notes || null,
-        occurred_at: input.occurred_at?.toISOString() || new Date().toISOString(),
+        triggered_at: input.triggered_at?.toISOString() || new Date().toISOString(),
       })
       .select()
       .single();
@@ -158,7 +151,7 @@ class TriggersService {
       .from('trigger_logs')
       .select('*')
       .eq('user_id', user.id)
-      .order('occurred_at', { ascending: false })
+      .order('triggered_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
@@ -182,9 +175,9 @@ class TriggersService {
       .from('trigger_logs')
       .select('*')
       .eq('user_id', user.id)
-      .gte('occurred_at', startDate.toISOString())
-      .lte('occurred_at', endDate.toISOString())
-      .order('occurred_at', { ascending: false });
+      .gte('triggered_at', startDate.toISOString())
+      .lte('triggered_at', endDate.toISOString())
+      .order('triggered_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching trigger logs by date range:', error);
@@ -312,7 +305,6 @@ class TriggersService {
           social: 0,
           environmental: 0,
           physical: 0,
-          mental: 0,
           other: 0,
         },
       };
@@ -320,7 +312,7 @@ class TriggersService {
 
     const { data, error } = await supabase
       .from('trigger_logs')
-      .select('trigger_name, category, intensity, outcome')
+      .select('trigger_name, trigger_type, intensity, outcome')
       .eq('user_id', user.id);
 
     if (error || !data || data.length === 0) {
@@ -335,7 +327,6 @@ class TriggersService {
           social: 0,
           environmental: 0,
           physical: 0,
-          mental: 0,
           other: 0,
         },
       };
@@ -348,7 +339,6 @@ class TriggersService {
       social: 0,
       environmental: 0,
       physical: 0,
-      mental: 0,
       other: 0,
     };
     let totalIntensity = 0;
@@ -360,7 +350,7 @@ class TriggersService {
       triggerCounts[log.trigger_name] = (triggerCounts[log.trigger_name] || 0) + 1;
 
       // Count categories
-      categoryCounts[log.category as TriggerCategory]++;
+      categoryCounts[log.trigger_type as TriggerCategory]++;
 
       // Sum intensity
       totalIntensity += log.intensity;
@@ -368,7 +358,7 @@ class TriggersService {
       // Count outcomes
       if (log.outcome) {
         outcomesCount++;
-        if (log.outcome === 'resisted' || log.outcome === 'partially_resisted') {
+        if (log.outcome === 'managed') {
           resistedCount++;
         }
       }

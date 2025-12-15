@@ -3,21 +3,19 @@ import { supabase } from '../../../config/supabase';
 export type PostCategory =
   | 'general'
   | 'support'
-  | 'success_story'
+  | 'celebration'
   | 'question'
-  | 'resource'
-  | 'milestone';
+  | 'motivation';
 
 export interface CommunityPost {
   id: string;
   user_id: string;
-  title: string;
   content: string;
   category: PostCategory;
   is_anonymous: boolean;
-  likes_count: number;
-  comments_count: number;
-  is_pinned: boolean;
+  encouragement_count: number;
+  comment_count: number;
+  is_flagged: boolean;
   is_hidden: boolean;
   created_at: string;
   updated_at: string;
@@ -52,7 +50,6 @@ export interface Encouragement {
 }
 
 export interface CreatePostInput {
-  title: string;
   content: string;
   category: PostCategory;
   is_anonymous?: boolean;
@@ -78,9 +75,9 @@ export const POST_CATEGORIES: { value: PostCategory; label: string; icon: string
     description: 'Ask for help or offer support to others',
   },
   {
-    value: 'success_story',
-    label: 'Success Story',
-    icon: '🌟',
+    value: 'celebration',
+    label: 'Celebration',
+    icon: '🎉',
     description: 'Share your wins and achievements',
   },
   {
@@ -90,16 +87,10 @@ export const POST_CATEGORIES: { value: PostCategory; label: string; icon: string
     description: 'Ask questions to the community',
   },
   {
-    value: 'resource',
-    label: 'Resource',
-    icon: '📚',
-    description: 'Share helpful resources and tips',
-  },
-  {
-    value: 'milestone',
-    label: 'Milestone',
-    icon: '🏆',
-    description: 'Celebrate your recovery milestones',
+    value: 'motivation',
+    label: 'Motivation',
+    icon: '💪',
+    description: 'Share or find motivational content',
   },
 ];
 
@@ -131,10 +122,9 @@ class CommunityService {
       .from('community_posts')
       .select(`
         *,
-        profiles!community_posts_user_id_fkey (display_name, days_sober)
+        profiles (display_name)
       `)
       .eq('is_hidden', false)
-      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -160,11 +150,11 @@ class CommunityService {
     }
 
     return (data || []).map((post: Record<string, unknown>) => {
-      const profiles = post.profiles as { display_name?: string; days_sober?: number } | null;
+      const profiles = post.profiles as { display_name?: string } | null;
       return {
         ...post,
         author_name: post.is_anonymous ? 'Anonymous' : (profiles?.display_name || 'User'),
-        author_days_sober: post.is_anonymous ? undefined : profiles?.days_sober,
+        author_days_sober: undefined,
         user_has_liked: userLikes.has(post.id as string),
         profiles: undefined,
       };
@@ -187,7 +177,7 @@ class CommunityService {
       .from('community_posts')
       .select(`
         *,
-        profiles!community_posts_user_id_fkey (display_name, days_sober)
+        profiles (display_name)
       `)
       .eq('id', postId)
       .single();
@@ -202,7 +192,7 @@ class CommunityService {
       .from('community_comments')
       .select(`
         *,
-        profiles!community_comments_user_id_fkey (display_name, days_sober)
+        profiles (display_name)
       `)
       .eq('post_id', postId)
       .eq('is_hidden', false)
@@ -224,22 +214,22 @@ class CommunityService {
       userHasLiked = !!like;
     }
 
-    const postProfiles = post.profiles as { display_name?: string; days_sober?: number } | null;
+    const postProfiles = post.profiles as { display_name?: string } | null;
 
     return {
       post: {
         ...post,
         author_name: post.is_anonymous ? 'Anonymous' : (postProfiles?.display_name || 'User'),
-        author_days_sober: post.is_anonymous ? undefined : postProfiles?.days_sober,
+        author_days_sober: undefined,
         user_has_liked: userHasLiked,
         profiles: undefined,
       } as CommunityPost,
       comments: (comments || []).map((comment: Record<string, unknown>) => {
-        const commentProfiles = comment.profiles as { display_name?: string; days_sober?: number } | null;
+        const commentProfiles = comment.profiles as { display_name?: string } | null;
         return {
           ...comment,
           author_name: comment.is_anonymous ? 'Anonymous' : (commentProfiles?.display_name || 'User'),
-          author_days_sober: comment.is_anonymous ? undefined : commentProfiles?.days_sober,
+          author_days_sober: undefined,
           profiles: undefined,
         };
       }) as CommunityComment[],
@@ -259,7 +249,6 @@ class CommunityService {
       .from('community_posts')
       .insert({
         user_id: user.id,
-        title: input.title,
         content: input.content,
         category: input.category,
         is_anonymous: input.is_anonymous || false,

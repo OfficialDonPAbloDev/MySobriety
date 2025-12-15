@@ -37,7 +37,7 @@ export function TriggerLogEditor({
   const [intensity, setIntensity] = useState<TriggerIntensity>(3);
   const [situation, setSituation] = useState('');
   const [selectedStrategies, setSelectedStrategies] = useState<string[]>([]);
-  const [outcome, setOutcome] = useState<'resisted' | 'partially_resisted' | 'gave_in' | null>(null);
+  const [outcome, setOutcome] = useState<'managed' | 'struggled' | 'relapsed' | null>(null);
   const [notes, setNotes] = useState('');
 
   const handleSelectCommonTrigger = (trigger: { name: string; category: TriggerCategory }) => {
@@ -58,9 +58,9 @@ export function TriggerLogEditor({
 
     await onSave({
       trigger_name: triggerName.trim(),
-      category,
+      trigger_type: category,
       intensity,
-      situation: situation.trim() || undefined,
+      location: situation.trim() || undefined,
       coping_strategies_used: selectedStrategies.length > 0 ? selectedStrategies : undefined,
       outcome: outcome || undefined,
       notes: notes.trim() || undefined,
@@ -231,45 +231,45 @@ export function TriggerLogEditor({
           <Text style={styles.label}>Outcome</Text>
           <View style={styles.outcomeRow}>
             <TouchableOpacity
-              style={[styles.outcomeButton, outcome === 'resisted' && styles.outcomeResisted]}
-              onPress={() => setOutcome(outcome === 'resisted' ? null : 'resisted')}
+              style={[styles.outcomeButton, outcome === 'managed' && styles.outcomeResisted]}
+              onPress={() => setOutcome(outcome === 'managed' ? null : 'managed')}
             >
               <Text
                 style={[
                   styles.outcomeText,
-                  outcome === 'resisted' && styles.outcomeTextSelected,
+                  outcome === 'managed' && styles.outcomeTextSelected,
                 ]}
               >
-                Resisted
+                Managed
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.outcomeButton,
-                outcome === 'partially_resisted' && styles.outcomePartial,
+                outcome === 'struggled' && styles.outcomePartial,
               ]}
-              onPress={() => setOutcome(outcome === 'partially_resisted' ? null : 'partially_resisted')}
+              onPress={() => setOutcome(outcome === 'struggled' ? null : 'struggled')}
             >
               <Text
                 style={[
                   styles.outcomeText,
-                  outcome === 'partially_resisted' && styles.outcomeTextSelected,
+                  outcome === 'struggled' && styles.outcomeTextSelected,
                 ]}
               >
-                Partially
+                Struggled
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.outcomeButton, outcome === 'gave_in' && styles.outcomeGaveIn]}
-              onPress={() => setOutcome(outcome === 'gave_in' ? null : 'gave_in')}
+              style={[styles.outcomeButton, outcome === 'relapsed' && styles.outcomeGaveIn]}
+              onPress={() => setOutcome(outcome === 'relapsed' ? null : 'relapsed')}
             >
               <Text
                 style={[
                   styles.outcomeText,
-                  outcome === 'gave_in' && styles.outcomeTextSelected,
+                  outcome === 'relapsed' && styles.outcomeTextSelected,
                 ]}
               >
-                Gave In
+                Relapsed
               </Text>
             </TouchableOpacity>
           </View>

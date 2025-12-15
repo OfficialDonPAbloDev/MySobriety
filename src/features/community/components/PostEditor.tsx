@@ -19,23 +19,21 @@ interface PostEditorProps {
 }
 
 export function PostEditor({ onSave, onCancel, isSubmitting }: PostEditorProps) {
-  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<PostCategory>('general');
   const [isAnonymous, setIsAnonymous] = useState(false);
 
   const handleSave = async () => {
-    if (!title.trim() || !content.trim()) return;
+    if (!content.trim()) return;
 
     await onSave({
-      title: title.trim(),
       content: content.trim(),
       category,
       is_anonymous: isAnonymous,
     });
   };
 
-  const isValid = title.trim().length > 0 && content.trim().length > 0;
+  const isValid = content.trim().length > 0;
 
   return (
     <KeyboardAvoidingView
@@ -73,23 +71,9 @@ export function PostEditor({ onSave, onCancel, isSubmitting }: PostEditorProps) 
           </Text>
         </View>
 
-        {/* Title Input */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Title *</Text>
-          <TextInput
-            style={styles.textInput}
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Give your post a title"
-            placeholderTextColor="#9CA3AF"
-            maxLength={150}
-          />
-          <Text style={styles.charCount}>{title.length}/150</Text>
-        </View>
-
         {/* Content Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Content *</Text>
+          <Text style={styles.label}>What's on your mind? *</Text>
           <TextInput
             style={[styles.textInput, styles.contentInput]}
             value={content}

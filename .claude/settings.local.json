@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(npx create-expo-app@latest:*)",
+      "Bash(xcopy:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(git init:*)",
+      "Bash(npx husky init)",
+      "Bash(npx expo install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx expo start:*)",
+      "Bash(winget install:*)",
+      "Bash(npm exec:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

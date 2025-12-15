@@ -8,16 +8,16 @@ interface TriggerLogCardProps {
 }
 
 export function TriggerLogCard({ log, onPress, onDelete }: TriggerLogCardProps) {
-  const category = TRIGGER_CATEGORIES.find((c) => c.value === log.category);
+  const category = TRIGGER_CATEGORIES.find((c) => c.value === log.trigger_type);
   const intensity = INTENSITY_LABELS.find((i) => i.value === log.intensity);
 
   const getOutcomeColor = () => {
     switch (log.outcome) {
-      case 'resisted':
+      case 'managed':
         return '#10B981';
-      case 'partially_resisted':
+      case 'struggled':
         return '#EAB308';
-      case 'gave_in':
+      case 'relapsed':
         return '#EF4444';
       default:
         return '#9CA3AF';
@@ -26,12 +26,12 @@ export function TriggerLogCard({ log, onPress, onDelete }: TriggerLogCardProps) 
 
   const getOutcomeLabel = () => {
     switch (log.outcome) {
-      case 'resisted':
-        return 'Resisted';
-      case 'partially_resisted':
-        return 'Partially Resisted';
-      case 'gave_in':
-        return 'Gave In';
+      case 'managed':
+        return 'Managed';
+      case 'struggled':
+        return 'Struggled';
+      case 'relapsed':
+        return 'Relapsed';
       default:
         return 'No outcome recorded';
     }
@@ -62,14 +62,14 @@ export function TriggerLogCard({ log, onPress, onDelete }: TriggerLogCardProps) 
           <Text style={styles.categoryIcon}>{category?.icon}</Text>
           <Text style={styles.categoryLabel}>{category?.label}</Text>
         </View>
-        <Text style={styles.date}>{formatDate(log.occurred_at)}</Text>
+        <Text style={styles.date}>{formatDate(log.triggered_at)}</Text>
       </View>
 
       <Text style={styles.triggerName}>{log.trigger_name}</Text>
 
-      {log.situation && (
+      {log.location && (
         <Text style={styles.situation} numberOfLines={2}>
-          {log.situation}
+          {log.location}
         </Text>
       )}
 

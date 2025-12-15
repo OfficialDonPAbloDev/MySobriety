@@ -5,29 +5,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const emergencyHotlines = [
   {
     id: '1',
-    name: 'SAMHSA National Helpline',
-    phone: '1-800-662-4357',
-    description: 'Free, confidential, 24/7 treatment referral and information',
+    name: 'Samaritans National Helpline',
+    phone: '116 123',
+    description: 'Free, confidential, 24/7 non judgemental volunteers and information',
     available: '24/7',
   },
   {
     id: '2',
-    name: 'National Suicide Prevention Lifeline',
-    phone: '988',
+    name: 'Suicide Prevention UK',
+    phone: '0800 587 0800',
     description: 'Free and confidential support for people in distress',
     available: '24/7',
   },
   {
     id: '3',
-    name: 'Crisis Text Line',
-    phone: 'Text HOME to 741741',
-    description: 'Free crisis support via text message',
+    name: 'Mind mental health helplines',
+    phone: '0300 102 1234',
+    description: 'Free crisis support',
     available: '24/7',
   },
   {
     id: '4',
     name: 'Alcoholics Anonymous',
-    phone: '1-800-839-1686',
+    phone: '0800 917 7650',
     description: 'AA meeting information and support',
     available: '24/7',
   },
@@ -56,7 +56,7 @@ export default function ResourcesScreen() {
           <View style={styles.emergencyContent}>
             <Text style={styles.emergencyTitle}>In Crisis?</Text>
             <Text style={styles.emergencyText}>
-              If you're experiencing a medical emergency, call 911 immediately.
+              If you're experiencing a medical emergency, call 999 immediately.
             </Text>
           </View>
         </View>

@@ -27,7 +27,7 @@ export function PostCard({ post, onPress, onLike, onComment }: PostCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.container, post.is_pinned && styles.containerPinned]}
+      style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -47,11 +47,6 @@ export function PostCard({ post, onPress, onLike, onComment }: PostCardProps) {
           </View>
         </View>
         <View style={styles.headerRight}>
-          {post.is_pinned && (
-            <View style={styles.pinnedBadge}>
-              <Text style={styles.pinnedText}>📌</Text>
-            </View>
-          )}
           <Text style={styles.date}>{formatDate(post.created_at)}</Text>
         </View>
       </View>
@@ -63,7 +58,6 @@ export function PostCard({ post, onPress, onLike, onComment }: PostCardProps) {
       </View>
 
       {/* Content */}
-      <Text style={styles.title}>{post.title}</Text>
       <Text style={styles.content} numberOfLines={3}>
         {post.content}
       </Text>
@@ -78,13 +72,13 @@ export function PostCard({ post, onPress, onLike, onComment }: PostCardProps) {
           <Text
             style={[styles.actionText, post.user_has_liked && styles.actionTextActive]}
           >
-            {post.likes_count}
+            {post.encouragement_count}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={onComment}>
           <Text style={styles.actionIcon}>💬</Text>
-          <Text style={styles.actionText}>{post.comments_count}</Text>
+          <Text style={styles.actionText}>{post.comment_count}</Text>
         </TouchableOpacity>
 
         <View style={styles.spacer} />
@@ -108,10 +102,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-  },
-  containerPinned: {
-    borderWidth: 1,
-    borderColor: '#4F46E5',
   },
   header: {
     flexDirection: 'row',
@@ -153,12 +143,6 @@ const styles = StyleSheet.create({
   headerRight: {
     alignItems: 'flex-end',
   },
-  pinnedBadge: {
-    marginBottom: 4,
-  },
-  pinnedText: {
-    fontSize: 14,
-  },
   date: {
     fontSize: 12,
     color: '#9CA3AF',
@@ -181,12 +165,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#4F46E5',
     fontWeight: '500',
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 6,
   },
   content: {
     fontSize: 14,
